@@ -2,10 +2,6 @@ from fastapi import FastAPI, Form, Request
 import uvicorn
 import json
 import os
-import localrag_functions as localrag
-from system_helpers import find_sql_query, CYAN, YELLOW, NEON_GREEN, RESET_COLOR
-import database_access.data_retrieval as data_retrieval
-import database_access.custom_queries as queries
 import requests
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware # middleware. requirement for frontend-suitable endpoint
