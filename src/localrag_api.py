@@ -68,7 +68,7 @@ async def startup_event():
 
     # configure usage
     global usage 
-    usage = "openAI" # "openAI" or "local"
+    usage = "openAI" # "openAI"
 
     # prepare system message and vault content
     llm_active = True
@@ -83,7 +83,6 @@ async def startup_event():
         vault_embeddings_tensor = localrag.generate_vault_embeddings_tensor(vault_embeddings)
         # access to open ai
         openai_api_key =  os.getenv("OPENAI_API_KEY")
-        print("OPENAI-KEY:", openai_api_key)
 
 ' ######################## endpoint to make requests for LLM and database #################'
 @app.post("/get_context_and_send_request")
