@@ -11,5 +11,8 @@
 
 # Hint: This repo contains the backend only! It serves ONLY for cloud deployment (and local tests)
 
-    - to start it locally, run localrag_api.py
+    - to start it locally, run localrag_api.py. Note: .env will be loaded locally
     - alternatively, start run_app.bat to start this backend. To see how, check heading description in that file.
+    - note for docker usage:
+       - start docker-container from this project root (easy-local-rag-backendonly), including .env-file:
+          - docker run --env-file .env -p 8000:8000 --name bird_paradise_backendcontainer bird_paradise_backend
