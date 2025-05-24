@@ -9,7 +9,7 @@ def establish_database_connection():
     if cloud_usage:
         try:
             ' ######### load environment variables, get azure sql-db admin credentials #####'
-            load_dotenv(dotenv_path="../../../.env")
+            # env variables have been loaded in uvicorn app (when locally running) or docker/cloud env!
             azure_db_admin =  os.getenv("SQL_DB_ADMIN")
             azure_db_admin_pwd = os.getenv("SQL_DB_ADMIN_PWD")
             ' ###################### connection parameters ####################'

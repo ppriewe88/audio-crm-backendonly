@@ -56,8 +56,13 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     
-    # load environment variables to later get openai-key
-    load_dotenv(dotenv_path="../.env")
+    # load environment variables to later get openai-key and db-credentials
+    env_path = "../.env"
+    if os.path.isfile(env_path):
+        load_dotenv(dotenv_path="../.env")
+        print(f"loaded local env variables from {env_path}")
+    else:
+        print(f"No local env available, getting from docker/cloud!")
 
     # configure usage
     global usage 
@@ -132,7 +137,6 @@ async def get_context_and_send_request(question: str = Form(...)):
         api_url_openai = "https://api.openai.com/v1/chat/completions"
         # sending request to official API of OpenAI
         # configuring message first
-        # openai_api_key =  os.getenv("OPENAI_API_KEY")
 
         headers = {
             "Authorization": f"Bearer {openai_api_key}",
