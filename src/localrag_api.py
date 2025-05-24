@@ -70,21 +70,18 @@ async def startup_event():
     global usage 
     usage = "openAI" # "openAI" or "local"
 
-    # if local usage: prepare ollama model for local testing
-    if usage == "local":
-        global args, model, client
-        args = localrag.parse_cli_input()
-        model = args.model
-        client = localrag.configure_ollama_client()
-    
     # prepare system message and vault content
     llm_active = True
     if llm_active:
-        global system_message, vault_content, vault_embeddings, vault_embeddings_tensor, connection, openai_api_key
-        system_message =  find_sql_query
+        global system_message, vault_content, vault_embeddings, vault_embeddings_tensor, connection, openai_client, openai_api_key
+        # system message and vault content
+        system_message = find_sql_query
         vault_content = localrag.load_vault_content()
-        vault_embeddings = localrag.generate_embeddings_for_vault_content(vault_content)
+        # Use OpenAI embeddings
+        openai_client = localrag.configure_openai_client()
+        vault_embeddings = localrag.generate_embeddings_for_vault_content(vault_content, openai_client)
         vault_embeddings_tensor = localrag.generate_vault_embeddings_tensor(vault_embeddings)
+        # access to open ai
         openai_api_key =  os.getenv("OPENAI_API_KEY")
         print("OPENAI-KEY:", openai_api_key)
 
@@ -104,7 +101,12 @@ async def get_context_and_send_request(question: str = Form(...)):
     """
     ' ################################## Getting relevant context ####################'
     # Get relevant context from vault
-    relevant_context_and_tables = localrag.get_relevant_context(question, vault_embeddings_tensor, vault_content, top_k=5)
+    relevant_context_and_tables = localrag.get_relevant_context(
+        question,
+        openai_client, 
+        vault_embeddings_tensor, 
+        vault_content, 
+        top_k=5)
     relevant_context = relevant_context_and_tables["relevant_context"]  # Extract the relevant context
     relevant_tables = relevant_context_and_tables["relevant_tables"]  # Extract the relevant table names
     if relevant_context:
@@ -118,53 +120,36 @@ async def get_context_and_send_request(question: str = Form(...)):
         user_input_with_context = context_str + "\n\n" + question
 
     ' ############### sending request to cloud-model / local model / openAI-API #####'
-    # send request to Cloud-LLM (e.g. Azure OpenAI)
+    # send request to Cloud-LLM (openAI)
     # set default for successfull llm call and check, which usage is specified. Then do llm call
     llm_call_successfull = True
-    if usage == "local":
-        print("running local test")
-        api_url_local = "http://localhost:5000/chat"
-        # send request to local LLM under different port (for testing and comparison of runtime)
-        llm_response = requests.post(
-            api_url_local,
-            json={"messages": [
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": user_input_with_context}
-                ]}
-        )
-        llm_response = llm_response.json()
-        print(CYAN + llm_response + RESET_COLOR)
-    elif usage == "openAI":
-        print("\nsending request to OpenAI API")
-        api_url_openai = "https://api.openai.com/v1/chat/completions"
-        # sending request to official API of OpenAI
-        # configuring message first
+    print("\nsending request to OpenAI API")
+    api_url_openai = "https://api.openai.com/v1/chat/completions"
+    # sending request to official API of OpenAI
+    # configuring message first
 
-        headers = {
-            "Authorization": f"Bearer {openai_api_key}",
-            "Content-Type": "application/json"
-        }
+    headers = {
+        "Authorization": f"Bearer {openai_api_key}",
+        "Content-Type": "application/json"
+    }
 
-        data = {
-            "model": "gpt-3.5-turbo",  # oder "gpt-3.5-turbo" je nach Bedarf
-            "messages": [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": user_input_with_context}
-            ],
-            "temperature": 0.1,
-            "max_tokens": 250
-        }
-        # now sending request
-        llm_response = requests.post(api_url_openai, headers=headers, json=data)
-        # erorr handling
-        if llm_response.status_code != 200:
-            raise Exception(f"OpenAI API Error: {llm_response.status_code} - {llm_response.text}")
+    data = {
+        "model": "gpt-3.5-turbo",  # oder "gpt-3.5-turbo" je nach Bedarf
+        "messages": [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_input_with_context}
+        ],
+        "temperature": 0.1,
+        "max_tokens": 250
+    }
+    # now sending request
+    llm_response = requests.post(api_url_openai, headers=headers, json=data)
+    # erorr handling
+    if llm_response.status_code != 200:
+        raise Exception(f"OpenAI API Error: {llm_response.status_code} - {llm_response.text}")
 
-        llm_response = llm_response.json()['choices'][0]['message']['content']
-        print("Received query build by LLM:", CYAN + llm_response + RESET_COLOR)
-    else:
-        llm_response=("Invalid usage option. Choose 'cloud', 'local', or 'openAI'.")
-        llm_call_successfull = False
+    llm_response = llm_response.json()['choices'][0]['message']['content']
+    print("Received query built by LLM:", CYAN + llm_response + RESET_COLOR)
 
     ' ############### Send SQL clause to database and get result ###############'
     if llm_call_successfull:

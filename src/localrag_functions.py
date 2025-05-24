@@ -26,11 +26,11 @@ def configure_openai_client():
     client = OpenAI(api_key=openai_api_key)
     return client
 
-def generate_embeddings_for_vault_content(vault_content):
+def generate_embeddings_for_vault_content(vault_content, openai_client):
     
     print(NEON_GREEN + "Generating embeddings for the vault content..." + RESET_COLOR)    
     vault_embeddings = []
-    client = configure_openai_client()
+    client = openai_client
     
     for content in vault_content:
         try:
@@ -55,10 +55,10 @@ def generate_vault_embeddings_tensor(vault_embeddings):
 
 ' ##################################################### ollama functions #######################'
 # Function to get relevant context from the vault based on user input
-def get_relevant_context(user_input, vault_embeddings, vault_content, top_k=3):
+def get_relevant_context(user_input, openai_client, vault_embeddings, vault_content, top_k=3):
     if vault_embeddings.nelement() == 0:  # Check if the tensor has any elements
         return []
-    client = configure_openai_client()
+    client = openai_client
     try:
         response = client.embeddings.create(
             model="text-embedding-3-small",
