@@ -4,49 +4,32 @@ import os
 ' ###### establishing connection #################'
 
 def establish_database_connection():
-    cloud_usage = True
-    if cloud_usage:
-        try:
-            ' ######### load environment variables, get azure sql-db admin credentials #####'
-            # env variables have been loaded in uvicorn app (when locally running) or docker/cloud env!
-            azure_db_admin =  os.getenv("SQL_DB_ADMIN")
-            azure_db_admin_pwd = os.getenv("SQL_DB_ADMIN_PWD")
-            ' ###################### connection parameters ####################'
-            server = r'bird-paradise-db-server.database.windows.net'
-            database = 'bird_paradise_sqldatabase' # "birds_paradise_SQL_dev" # 'ProjektarbeitPP'
-            username = azure_db_admin
-            password = azure_db_admin_pwd
-            driver = '{ODBC Driver 17 for SQL Server}'
+    try:
+        ' ######### load environment variables, get azure sql-db admin credentials #####'
+        # env variables have been loaded in uvicorn app (when locally running) or docker/cloud env!
+        azure_db_admin =  os.getenv("SQL_DB_ADMIN")
+        azure_db_admin_pwd = os.getenv("SQL_DB_ADMIN_PWD")
+        ' ###################### connection parameters ####################'
+        server = r'bird-paradise-db-server.database.windows.net'
+        database = 'bird_paradise_sqldatabase' # "birds_paradise_SQL_dev" # 'ProjektarbeitPP'
+        username = azure_db_admin
+        password = azure_db_admin_pwd
+        driver = '{ODBC Driver 17 for SQL Server}'
 
-            ' ############### open connection ###########################'
-            connection_string = f"""
-                    DRIVER={driver};
-                    SERVER={server};
-                    DATABASE={database};
-                    UID={username};
-                    PWD={password};
-                    Encrypt=yes;
-                    TrustServerCertificate=no;""" #                     TrustServerCertificate=no;
-            connection = pyodbc.connect(connection_string)
-            print("Connection succesfully established")
-        except pyodbc.Error as e:
-            print("Connection error: ", e)
-        return connection
-    else:
-        try:
-            ' ###################### connection parameters ####################'
-            server = r'DESKTOP-5S013HL\SQL2022EXPRESS'
-            database = 'ProjektarbeitPP'
-            driver = '{ODBC Driver 17 for SQL Server}'
-
-            ' ############### open connection ###########################'
-            connection_string = f"""
-                    DRIVER={driver};SERVER={server};DATABASE={database};Trusted_Connection=yes"""
-            connection = pyodbc.connect(connection_string)
-            print("Connection succesfully established")
-        except pyodbc.Error as e:
-            print("Connection error: ", e)
-        return connection
+        ' ############### open connection ###########################'
+        connection_string = f"""
+                DRIVER={driver};
+                SERVER={server};
+                DATABASE={database};
+                UID={username};
+                PWD={password};
+                Encrypt=yes;
+                TrustServerCertificate=no;""" #                     TrustServerCertificate=no;
+        connection = pyodbc.connect(connection_string)
+        print("Connection succesfully established")
+    except pyodbc.Error as e:
+        print("Connection error: ", e)
+    return connection
 
 
 ' ################### function to exec queries/procedures ################'
