@@ -53,7 +53,7 @@ def generate_vault_embeddings_tensor(vault_embeddings):
     # print(vault_embeddings_tensor)
     return vault_embeddings_tensor
 
-' ##################################################### ollama functions #######################'
+' ##################################################### ai functions #######################'
 # Function to get relevant context from the vault based on user input
 def get_relevant_context(user_input, openai_client, vault_embeddings, vault_content, top_k=3):
     if vault_embeddings.nelement() == 0:  # Check if the tensor has any elements
