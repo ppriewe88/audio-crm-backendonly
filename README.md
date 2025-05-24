@@ -9,7 +9,7 @@
 
     - More documentation to come!
 
-# Hint: This repo contains the backend only!
+# Hint: This repo contains the backend only! It serves ONLY for cloud deployment (and local tests)
 
     - to start it locally, run localrag_api.py
-    - alternatively, start run_app.bat. To see how, check heading description in that file.
+    - alternatively, start run_app.bat to start this backend. To see how, check heading description in that file.
