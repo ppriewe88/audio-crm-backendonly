@@ -23,11 +23,11 @@ COPY src/system_helpers.py ./src/system_helpers.py
 COPY src/vault.txt ./src/vault.txt
 
 # copy start script from "virtualization" to parent directory of frontend (one level up from docker's WORKDIR!)
-COPY docker/run_app_backend_docker.sh /app/run_app_backend_docker.sh
+COPY docker/run_app_docker.sh /app/run_app_docker.sh
 
 ################################ ports and run configuration ##########
 # open communication ports
 EXPOSE 8000
 
 # command ran during the docker building process
-CMD ["bash", "/app/run_app_backend_docker.sh"]
+CMD ["bash", "/app/run_app_docker.sh"]
