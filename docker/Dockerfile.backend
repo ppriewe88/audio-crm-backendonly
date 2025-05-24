@@ -1,34 +1,33 @@
 ################################# NOTICE ###############################
-# This file serves for building a docker container of the BACKEND ONLY!
+# This file serves for building a docker container of the BACKEND of crm audio (bird paradise)!
 ############################### EXECUTION NOTICE #######################
 # to build image with this file, ALWAYS start building process from project root! 
-# i.e. one level above "virtualization"-> project root)
+# i.e. one level above "docker"-> project root)
 
 
 ################################ backend stage ########################
 # import python base image
 FROM python:3.12-slim
-# create backend in working directory
-WORKDIR /app/backend
-# copy requirements into backend root
-COPY backend/requirements.txt .
+# create working directory
+WORKDIR /app
+# copy requirements into root
+COPY requirements.txt .
 # install requirements with pip
 RUN pip install --no-cache-dir -r requirements.txt
-# copy backend contents into backend root ("." =  /app/backend).
+# copy contents into root ("." =  /app).
 # do this selectively, i.e. manually chose folders!
-COPY backend/src/api ./src/api
-COPY backend/src/business_logic ./src/business_logic
-COPY backend/src/data/test ./src/data/test
-COPY backend/src/data/helpers.py ./src/data/helpers.py
-COPY backend/src/models/mlartifacts ./src/models/mlartifacts
-COPY backend/src/models/mlruns ./src/models/mlruns
+COPY src/database_access ./src/database_access
+COPY src/localrag_api.py ./src/localrag_api.py
+COPY src/localrag_functions.py ./src/localrag_functions.py
+COPY src/system_helpers.py ./src/system_helpers.py
+COPY src/vault.txt ./src/vault.txt
 
 # copy start script from "virtualization" to parent directory of frontend (one level up from docker's WORKDIR!)
-COPY virtualization/run_app_backend_docker.sh /app/run_app_backend_docker.sh
+COPY docker/run_app_backend_docker.sh /app/run_app_backend_docker.sh
 
 ################################ ports and run configuration ##########
 # open communication ports
-EXPOSE 8000 8080
+EXPOSE 8000
 
 # command ran during the docker building process
 CMD ["bash", "/app/run_app_backend_docker.sh"]
