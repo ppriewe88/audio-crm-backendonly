@@ -10,6 +10,13 @@
 FROM python:3.12-slim
 # create working directory
 WORKDIR /app
+# install system dependencies for pyodbc and unixodbc driver
+RUN apt-get update && apt-get install -y \
+    unixodbc \
+    unixodbc-dev \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 # copy requirements into root
 COPY requirements.txt .
 # install requirements with pip
