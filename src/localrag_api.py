@@ -56,7 +56,9 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     
-    # load environment variables to later get openai-key and db-credentials
+    # load environment variables to later get openai-key and db-credentials.
+    # do this ONLY, iv .env is available (usage on local pc).
+    # if that file is not available, configure env variables when starting docker or azure!
     env_path = "../.env"
     if os.path.isfile(env_path):
         load_dotenv(dotenv_path="../.env")
